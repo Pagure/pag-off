@@ -44,8 +44,17 @@ def load_tickets(ticket_fold, status='Open', ticket_id=None, tags=None):
 
     for filename in os.listdir(ticket_fold):
         filepath = os.path.join(ticket_fold, filename)
+
         if not os.path.isfile(filepath):
+            _log.debug(
+                'Path %s does not point to a file, passing', filepath)
             continue
+
+        if '.' in filename:
+            _log.debug(
+                'There is a "." in the filename, that is invalid, passing')
+            continue
+
         _log.debug('Loading file: %s', filepath)
         try:
             with open(filepath) as stream:
