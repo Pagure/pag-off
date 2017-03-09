@@ -18,7 +18,7 @@ import arrow
 _log = logging.getLogger(__name__)
 
 
-def load_tickets(ticket_fold, status='Open'):
+def load_tickets(ticket_fold, status='Open', ticket_id=None):
     """ Load the tickets present in the specified folder, filter them with
     the given filters and return a dict of
         { ticket_id: ticket_data }
@@ -27,8 +27,11 @@ def load_tickets(ticket_fold, status='Open'):
         to load
     :type ticket_fold: str
     :kwarg status: The status to filter the issues returned with.
-        Can be: Open, Closed or All. Defaults to 'Open'
-    :type bad_password: str
+        Can be: Open, Closed or All. Defaults to 'Open'.
+        This filter is un-used when searching a specifying a ticket_id.
+    :type status: str
+    :kwarg ticket_id: The identifier of the issue to return.
+    :type ticket_id: int or str
     :return: The ticket data in a dict which key in the ticket identifier
     :rtype: dict
 
@@ -49,6 +52,10 @@ def load_tickets(ticket_fold, status='Open'):
             _log.info(
                 'Could not load file: %s, continuing without', filepath)
         _id = data['id']
+
+        if str(_id) == str(ticket_id):
+            return data
+
         if status != 'all':
             if data['status'].lower() != status.lower():
                 continue
