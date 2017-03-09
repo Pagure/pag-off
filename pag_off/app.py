@@ -47,6 +47,7 @@ def do_list(args, config):
     """ List the tickets in the specified git repository. """
     _log.debug('project:        %s', args.project)
     _log.debug('status:         %s', args.status)
+    _log.debug('tags:         %s', args.tag)
     _log.debug('sort:           %s', args.sort)
 
     if args.status.lower() not in ['open', 'closed', 'all']:
@@ -54,10 +55,14 @@ def do_list(args, config):
             'Status: %s in not in the list of supported statuses' %
             args.status)
 
+    tags = args.tag.split(',') if args.tag else []
+    # clean empty tags
+    tags = [t.strip() for t in tags if t.strip()]
     location = os.path.expanduser(config.get('main', 'location'))
     ticket_fold = os.path.join(location, args.project)
     _log.debug('folder:         %s', ticket_fold)
-    tickets = pag_off.utils.load_tickets(ticket_fold, status=args.status)
+    tickets = pag_off.utils.load_tickets(
+        ticket_fold, status=args.status, tags=tags)
     table = []
     headers = None
     cnt = 0
@@ -142,6 +147,9 @@ def parse_arguments():
         '--sort', default='newer',
         help="Specifies in which order the tickets should be shown, can be: "
             "newer or older (cas insensitive). Defaults to: newer")
+    parser_list.add_argument(
+        '--tag',
+        help="One or more (comma separated) tags to filter the issues with")
     parser_list.set_defaults(func=do_list)
 
     # VIEW

@@ -18,7 +18,7 @@ import arrow
 _log = logging.getLogger(__name__)
 
 
-def load_tickets(ticket_fold, status='Open', ticket_id=None):
+def load_tickets(ticket_fold, status='Open', ticket_id=None, tags=None):
     """ Load the tickets present in the specified folder, filter them with
     the given filters and return a dict of
         { ticket_id: ticket_data }
@@ -32,6 +32,8 @@ def load_tickets(ticket_fold, status='Open', ticket_id=None):
     :type status: str
     :kwarg ticket_id: The identifier of the issue to return.
     :type ticket_id: int or str
+    :kwarg tags: A list of tags the issue must have to be returned.
+    :type tags: list
     :return: The ticket data in a dict which key in the ticket identifier
     :rtype: dict
 
@@ -59,6 +61,16 @@ def load_tickets(ticket_fold, status='Open', ticket_id=None):
         if status != 'all':
             if data['status'].lower() != status.lower():
                 continue
+
+        if tags:
+            ext = False
+            for tag in tags:
+                if tag not in data['tags']:
+                    ext = True
+                    break
+            if ext:
+                continue
+
         tickets[_id] = data
 
     return tickets
