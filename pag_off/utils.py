@@ -68,3 +68,53 @@ def humanize(date):
     """ Make the date human-friendly. """
     if date:
         return arrow.get(date).humanize()
+
+
+def ticket2str(ticket):
+    """ Return a string to display a ticket to the user. """
+    #print(ticket)
+    tmpl = """#{id}: {title}
+
+From:       {user}
+Date:       {date_created}
+Tags:       {tags}
+Assignee:   {assignee}
+Private:    {private}
+Status:     {status}
+Priority:   {priority}
+Blocks:     {blocks}
+Depends:    {depends}
+Milestone:  {milestone}
+Last update:{last_updated}
+
+{content}""".format(**{
+        'id': ticket['id'],
+        'title': ticket['title'],
+        'date_created': humanize(ticket['date_created']),
+        'user': ticket['user']['name'],
+        'tags': ', '.join(ticket['tags']),
+        'assignee': ticket['assignee']['name'] if ticket['assignee'] else '',
+        'private': ticket['private'],
+        'status': ticket['status'],
+        'priority': ticket['priority'],
+        'blocks': ', '.join(ticket['blocks']),
+        'depends': ', '.join(ticket['depends']),
+        'milestone': ticket['milestone'],
+        'last_updated': humanize(ticket['last_updated']),
+        'content': ticket['content'],
+    })
+
+    for comment in ticket['comments']:
+        tmpl += """
+        --------------------
+
+* {user}  -- {date}
+
+{comment}
+""".format(**{
+    'user': comment['user']['name'],
+    'date': humanize(comment['date_created']),
+    'comment': comment['comment'],
+    })
+
+    return tmpl

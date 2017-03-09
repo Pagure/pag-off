@@ -85,6 +85,20 @@ def do_list(args, config):
         print('%s tickets found' % cnt)
 
 
+def do_view(args, config):
+    """ Displays the content the tickets in the specified git repository.
+    """
+    _log.debug('project:        %s', args.project)
+    _log.debug('ticket:         %s', args.ticket_id)
+
+    location = os.path.expanduser(config.get('main', 'location'))
+    ticket_fold = os.path.join(location, args.project)
+    _log.debug('folder:         %s', ticket_fold)
+    ticket = pag_off.utils.load_tickets(
+        ticket_fold, ticket_id=args.ticket_id)
+    print(pag_off.utils.ticket2str(ticket))
+
+
 def parse_arguments():
     """ Set-up the argument parsing. """
     parser = argparse.ArgumentParser(
@@ -129,6 +143,20 @@ def parse_arguments():
         help="Specifies in which order the tickets should be shown, can be: "
             "newer or older (cas insensitive). Defaults to: newer")
     parser_list.set_defaults(func=do_list)
+
+    # VIEW
+    parser_view = subparsers.add_parser(
+        'view',
+        help='View the details of the tickets in the specified repository')
+    parser_view.add_argument(
+        'project',
+        help="Name of the project on pagure, can be: <project>, "
+            "<namespace>/project, fork/<user>/<project> or "
+            "fork/<user>/<namespace>/<project>")
+    parser_view.add_argument(
+        'ticket_id',
+        help="Identifier of the ticket in this project")
+    parser_view.set_defaults(func=do_view)
 
     return parser.parse_args()
 
