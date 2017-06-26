@@ -29,7 +29,8 @@ CONFIGS = [
 ]
 
 MIN_CONFIG = {
-    'main': ['base_url', 'location']
+    'main': ['base_url', 'location'],
+    'user': ['name', 'default_email']
 }
 
 
