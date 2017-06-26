@@ -128,11 +128,9 @@ Last update:{last_updated}
     for comment in ticket['comments']:
         tmpl += """
         --------------------
-
 * {user}  -- {date}
 
-{comment}
-""".format(**{
+{comment}""".format(**{
     'user': comment['user']['name'],
     'date': humanize(comment['date_created']),
     'comment': comment['comment'],
