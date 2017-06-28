@@ -65,7 +65,7 @@ def load_tickets(ticket_fold, status='Open', ticket_id=None, tags=None):
         _id = data['id']
 
         if str(_id) == str(ticket_id):
-            return data
+            return (data, filepath)
 
         if status != 'all':
             if data['status'].lower() != status.lower():

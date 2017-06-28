@@ -101,7 +101,7 @@ def do_view(args, config):
     ticket_fold = os.path.join(location, args.project)
     _log.debug('folder:         %s', ticket_fold)
     ticket = pag_off.utils.load_tickets(
-        ticket_fold, ticket_id=args.ticket_id)
+        ticket_fold, ticket_id=args.ticket_id)[0]
     print(pag_off.utils.ticket2str(ticket))
 
 
