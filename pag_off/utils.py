@@ -8,14 +8,34 @@
 
 """
 
+import datetime
 import json
 import logging
 import os
+import subprocess
 
 import arrow
 
 
 _log = logging.getLogger(__name__)
+
+
+def _run_shell_cmd(command, directory, return_stdout=False):
+    """ Invoke the specified shall command
+
+    """
+    proc = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        cwd=directory)
+    stdout, stderr = proc.communicate()
+    if proc.returncode != 0:
+        error_msg = ('The command "{0}" failed with "{1}"'
+                     .format(' '.join(command), stderr))
+        raise Exception(error_msg)
+    if return_stdout:
+        return stdout.strip()
 
 
 def load_tickets(ticket_fold, status='Open', ticket_id=None, tags=None):
@@ -137,3 +157,42 @@ Last update:{last_updated}
     })
 
     return tmpl
+
+
+def add_comment(ticket, filepath, comment, config):
+    """ Adds a given comment to the specified ticket. """
+    tmpl = {
+        'comment': comment,
+        'date_created': datetime.datetime.utcnow().strftime('%s'),
+        'edited_on': None,
+        'editor': None,
+        'id': None,
+        'notification': False,
+        'parent': None,
+        'user': {
+            'name': config.get('user', 'name'),
+            'default_email': config.get('user', 'default_email'),
+        }
+    }
+    ticket['comments'].append(tmpl)
+    print(ticket2str(ticket))
+    conf = input('Confirm comment [y/N]: ')
+    if conf.lower() not in ['yes', 'y']:
+        return 'canceled'
+
+    ticket['last_updated'] = datetime.datetime.utcnow().strftime('%s')
+
+    with open(filepath, 'w') as stream:
+        stream.write(json.dumps(
+            ticket, sort_keys=True, indent=4,
+            separators=(',', ': '))
+        )
+    folder, uid = filepath.rsplit('/', 1)
+    _run_shell_cmd(
+        ['git', 'commit', '-m',
+         'Updated issue %s: %s' % (uid, ticket['title']),
+         uid
+        ],
+        directory=folder
+    )
+    return 'done'

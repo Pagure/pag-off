@@ -105,6 +105,21 @@ def do_view(args, config):
     print(pag_off.utils.ticket2str(ticket))
 
 
+def do_comment(args, config):
+    """ Allows the user to comment on a specific ticket
+    """
+    _log.debug('project:        %s', args.project)
+    _log.debug('ticket:         %s', args.ticket_id)
+
+    location = os.path.expanduser(config.get('main', 'location'))
+    ticket_fold = os.path.join(location, args.project)
+    _log.debug('folder:         %s', ticket_fold)
+    ticket, filepath = pag_off.utils.load_tickets(
+        ticket_fold, ticket_id=args.ticket_id)
+    comment = input('Comment: ')
+    print(pag_off.utils.add_comment(ticket, filepath, comment, config))
+
+
 def parse_arguments():
     """ Set-up the argument parsing. """
     parser = argparse.ArgumentParser(
@@ -166,6 +181,20 @@ def parse_arguments():
         'ticket_id',
         help="Identifier of the ticket in this project")
     parser_view.set_defaults(func=do_view)
+
+    # COMMENT
+    parser_comment = subparsers.add_parser(
+        'comment',
+        help='Comment on a ticket in the specified repository')
+    parser_comment.add_argument(
+        'project',
+        help="Name of the project on pagure, can be: <project>, "
+            "<namespace>/project, fork/<user>/<project> or "
+            "fork/<user>/<namespace>/<project>")
+    parser_comment.add_argument(
+        'ticket_id',
+        help="Identifier of the ticket in this project")
+    parser_comment.set_defaults(func=do_comment)
 
     return parser.parse_args()
 
