@@ -105,6 +105,51 @@ def load_tickets(ticket_fold, status='Open', ticket_id=None, tags=None):
     return tickets
 
 
+def get_field_tickets(ticket_fold, field):
+    """ From all the tickets present in the specified folder, return the
+    list of value for the specified field.
+
+    :arg ticket_fold: The folder containing the JSON blobs of the tickets
+        to load
+    :type ticket_fold: str
+    :arg field: The field to search for in the tickets
+    :type field: str
+    :return: The values found in the ticket for the given field
+    :rtype: list
+
+    """
+    _log.info('Loading tickets from: %s', ticket_fold)
+
+    output = set()
+
+    for filename in os.listdir(ticket_fold):
+        filepath = os.path.join(ticket_fold, filename)
+
+        if not os.path.isfile(filepath):
+            _log.debug(
+                'Path %s does not point to a file, passing', filepath)
+            continue
+
+        if '.' in filename:
+            _log.debug(
+                'There is a "." in the filename, that is invalid, passing')
+            continue
+
+        _log.debug('Loading file: %s', filepath)
+        try:
+            with open(filepath) as stream:
+                data = json.load(stream)
+        except json.decoder.JSONDecodeError:
+            _log.info(
+                'Could not load file: %s, continuing without', filepath)
+
+        if field in data:
+            if data[field]:
+                output.add(data[field])
+
+    return list(output)
+
+
 def humanize(date):
     """ Make the date human-friendly. """
     if date:
@@ -191,6 +236,63 @@ def add_comment(ticket, filepath, comment, config):
     _run_shell_cmd(
         ['git', 'commit', '-m',
          'Updated issue %s: %s' % (uid, ticket['title']),
+         uid
+        ],
+        directory=folder
+    )
+    return 'done'
+
+
+def close_ticket(ticket, filepath, config, close_status=None):
+    """ Close the specified ticket, potentially with the specified
+    close_status.
+    """
+    comment = "**Metadata Update from @%s**:\n"\
+        "- Issue status updated to: Closed (was: %s)" % (
+            config.get('user', 'name'),
+            ticket["status"]
+    )
+    if close_status:
+        comment += "\n- Issue close_status updated to: %s" % (close_status)
+
+    tmpl = {
+        'comment': comment,
+        'date_created': datetime.datetime.utcnow().strftime('%s'),
+        'edited_on': None,
+        'editor': None,
+        'id': None,
+        'notification': True,
+        'parent': None,
+        'user': {
+            'name': config.get('user', 'name'),
+            'default_email': config.get('user', 'default_email'),
+        }
+    }
+    ticket['comments'].append(tmpl)
+
+    print(ticket2str(ticket))
+    t = ' '
+    if close_status:
+        t = ' as %s ' % close_status
+    conf = input('Confirm closing this ticket%s[y/N]: ' % t)
+    if conf.lower() not in ['yes', 'y']:
+        return 'canceled'
+
+    ticket['status'] = 'Closed'
+    ticket['closed_at'] = datetime.datetime.utcnow().strftime('%s')
+    ticket['last_updated'] = datetime.datetime.utcnow().strftime('%s')
+    if close_status:
+        ticket['close_status'] = close_status
+
+    with open(filepath, 'w') as stream:
+        stream.write(json.dumps(
+            ticket, sort_keys=True, indent=4,
+            separators=(',', ': '))
+        )
+    folder, uid = filepath.rsplit('/', 1)
+    _run_shell_cmd(
+        ['git', 'commit', '-m',
+         'Close issue %s: %s' % (uid, ticket['title']),
          uid
         ],
         directory=folder
