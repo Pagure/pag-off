@@ -158,7 +158,6 @@ def humanize(date):
 
 def ticket2str(ticket):
     """ Return a string to display a ticket to the user. """
-    #print(ticket)
     tmpl = """#{id}: {title}
 
 From:       {user}
@@ -191,15 +190,16 @@ Last update:{last_updated}
     })
 
     for comment in ticket['comments']:
+        d = {
+            'user': comment['user']['name'],
+            'date': humanize(comment['date_created']),
+            'comment': comment['comment']
+        }
         tmpl += """
         --------------------
 * {user}  -- {date}
 
-{comment}""".format(**{
-    'user': comment['user']['name'],
-    'date': humanize(comment['date_created']),
-    'comment': comment['comment'],
-    })
+{comment}""".format(**d)
 
     return tmpl
 
@@ -237,7 +237,7 @@ def add_comment(ticket, filepath, comment, config):
         ['git', 'commit', '-m',
          'Updated issue %s: %s' % (uid, ticket['title']),
          uid
-        ],
+         ],
         directory=folder
     )
     return 'done'
@@ -251,7 +251,7 @@ def close_ticket(ticket, filepath, config, close_status=None):
         "- Issue status updated to: Closed (was: %s)" % (
             config.get('user', 'name'),
             ticket["status"]
-    )
+        )
     if close_status:
         comment += "\n- Issue close_status updated to: %s" % (close_status)
 
@@ -294,7 +294,7 @@ def close_ticket(ticket, filepath, config, close_status=None):
         ['git', 'commit', '-m',
          'Close issue %s: %s' % (uid, ticket['title']),
          uid
-        ],
+         ],
         directory=folder
     )
     return 'done'

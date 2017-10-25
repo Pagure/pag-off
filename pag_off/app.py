@@ -84,7 +84,6 @@ def do_list(args, config):
             ])
             cnt += 1
     else:
-        #print('No tickets found with these criterias')
         table.append(['No tickets found with these criterias'])
     print(tabulate(table, headers=headers))
     if cnt:
@@ -145,6 +144,7 @@ def do_close(args, config):
         print(pag_off.utils.close_ticket(
             ticket, filepath, config, close_status))
 
+
 def parse_arguments():
     """ Set-up the argument parsing. """
     parser = argparse.ArgumentParser(
@@ -153,7 +153,7 @@ def parse_arguments():
     parser.add_argument(
         '--debug', default=False, action='store_true',
         help='Increase the verbosity of the information displayed')
-    parser.set_defaults(func=lambda a, k : print(parser.format_help()))
+    parser.set_defaults(func=lambda a, k: print(parser.format_help()))
 
     subparsers = parser.add_subparsers(title='actions')
 
@@ -164,8 +164,8 @@ def parse_arguments():
     parser_clone.add_argument(
         'project',
         help="Name of the project on pagure, can be: <project>, "
-            "<namespace>/project, fork/<user>/<project> or "
-            "fork/<user>/<namespace>/<project>")
+             "<namespace>/project, fork/<user>/<project> or "
+             "fork/<user>/<namespace>/<project>")
     parser_clone.add_argument(
         'repo',
         help="The type of repository to clone: tickets or pull-requests")
@@ -178,16 +178,16 @@ def parse_arguments():
     parser_list.add_argument(
         'project',
         help="Name of the project on pagure, can be: <project>, "
-            "<namespace>/project, fork/<user>/<project> or "
-            "fork/<user>/<namespace>/<project>")
+             "<namespace>/project, fork/<user>/<project> or "
+             "fork/<user>/<namespace>/<project>")
     parser_list.add_argument(
         'status', default='Open', nargs="?",
         help="Status of the tickets to show, can be: Open, Closed, All "
-            "(cas insensitive). Defaults to: Open")
+             "(cas insensitive). Defaults to: Open")
     parser_list.add_argument(
         '--sort', default='newer',
         help="Specifies in which order the tickets should be shown, can be: "
-            "newer or older (cas insensitive). Defaults to: newer")
+             "newer or older (cas insensitive). Defaults to: newer")
     parser_list.add_argument(
         '--tag',
         help="One or more (comma separated) tags to filter the issues with")
@@ -200,8 +200,8 @@ def parse_arguments():
     parser_view.add_argument(
         'project',
         help="Name of the project on pagure, can be: <project>, "
-            "<namespace>/project, fork/<user>/<project> or "
-            "fork/<user>/<namespace>/<project>")
+             "<namespace>/project, fork/<user>/<project> or "
+             "fork/<user>/<namespace>/<project>")
     parser_view.add_argument(
         'ticket_id',
         help="Identifier of the ticket in this project")
@@ -214,8 +214,8 @@ def parse_arguments():
     parser_comment.add_argument(
         'project',
         help="Name of the project on pagure, can be: <project>, "
-            "<namespace>/project, fork/<user>/<project> or "
-            "fork/<user>/<namespace>/<project>")
+             "<namespace>/project, fork/<user>/<project> or "
+             "fork/<user>/<namespace>/<project>")
     parser_comment.add_argument(
         'ticket_id',
         help="Identifier of the ticket in this project")
@@ -228,8 +228,8 @@ def parse_arguments():
     parser_comment.add_argument(
         'project',
         help="Name of the project on pagure, can be: <project>, "
-            "<namespace>/project, fork/<user>/<project> or "
-            "fork/<user>/<namespace>/<project>")
+             "<namespace>/project, fork/<user>/<project> or "
+             "fork/<user>/<namespace>/<project>")
     parser_comment.add_argument(
         'ticket_id',
         help="Identifier of the ticket in this project")

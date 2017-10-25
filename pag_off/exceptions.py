@@ -8,6 +8,7 @@
 
 """
 
+
 class PagOffException(Exception):
     """ Generic exception sub-classed by all of pag-off's exceptions. """
     pass
