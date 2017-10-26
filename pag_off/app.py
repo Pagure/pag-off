@@ -48,8 +48,9 @@ def do_list(args, config):
     """ List the tickets in the specified git repository. """
     _log.debug('project:        %s', args.project)
     _log.debug('status:         %s', args.status)
-    _log.debug('tags:         %s', args.tag)
+    _log.debug('tags:           %s', args.tag)
     _log.debug('sort:           %s', args.sort)
+    _log.debug('mine:           %s', args.mine)
 
     if args.status.lower() not in ['open', 'closed', 'all']:
         pag_off.exceptions.InvalidStatus(
@@ -63,7 +64,9 @@ def do_list(args, config):
     ticket_fold = os.path.join(location, args.project)
     _log.debug('folder:         %s', ticket_fold)
     tickets = pag_off.utils.load_tickets(
-        ticket_fold, status=args.status, tags=tags)
+        ticket_fold, status=args.status, tags=tags,
+        assignee=config.get('user', 'name'),
+    )
     table = []
     headers = None
     cnt = 0
@@ -191,6 +194,9 @@ def parse_arguments():
     parser_list.add_argument(
         '--tag',
         help="One or more (comma separated) tags to filter the issues with")
+    parser_list.add_argument(
+        '--mine', default=False, action='store_true',
+        help="Filter issues assigned to you")
     parser_list.set_defaults(func=do_list)
 
     # VIEW

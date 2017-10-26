@@ -38,7 +38,8 @@ def _run_shell_cmd(command, directory, return_stdout=False):
         return stdout.strip()
 
 
-def load_tickets(ticket_fold, status='Open', ticket_id=None, tags=None):
+def load_tickets(ticket_fold, status='Open', ticket_id=None, tags=None,
+                 assignee=None):
     """ Load the tickets present in the specified folder, filter them with
     the given filters and return a dict of
         { ticket_id: ticket_data }
@@ -54,6 +55,8 @@ def load_tickets(ticket_fold, status='Open', ticket_id=None, tags=None):
     :type ticket_id: int or str
     :kwarg tags: A list of tags the issue must have to be returned.
     :type tags: list
+    :kwarg assignee: The username of the assignee of the tickets to return
+    :type assignee: str
     :return: The ticket data in a dict which key in the ticket identifier
     :rtype: dict
 
@@ -98,6 +101,12 @@ def load_tickets(ticket_fold, status='Open', ticket_id=None, tags=None):
                     ext = True
                     break
             if ext:
+                continue
+
+        if assignee is not None:
+            if not data['assignee']:
+                continue
+            elif data['assignee']['name'] != assignee:
                 continue
 
         tickets[_id] = data
