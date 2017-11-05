@@ -63,9 +63,14 @@ def do_list(args, config):
     location = os.path.expanduser(config.get('main', 'location'))
     ticket_fold = os.path.join(location, args.project)
     _log.debug('folder:         %s', ticket_fold)
+    assignee = None
+    if args.mine:
+        assignee = config.get('user', 'name')
+    elif args.assignee:
+        assignee = args.assignee
     tickets = pag_off.utils.load_tickets(
         ticket_fold, status=args.status, tags=tags,
-        assignee=config.get('user', 'name'),
+        assignee=assignee,
     )
     table = []
     headers = None
@@ -197,6 +202,9 @@ def parse_arguments():
     parser_list.add_argument(
         '--mine', default=False, action='store_true',
         help="Filter issues assigned to you")
+    parser_list.add_argument(
+        '--assignee',
+        help="Return only the ticket assigned to this person")
     parser_list.set_defaults(func=do_list)
 
     # VIEW
