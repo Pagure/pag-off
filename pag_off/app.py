@@ -51,6 +51,7 @@ def do_list(args, config):
     _log.debug('tags:           %s', args.tag)
     _log.debug('sort:           %s', args.sort)
     _log.debug('mine:           %s', args.mine)
+    _log.debug('author:         %s', args.author)
 
     if args.status.lower() not in ['open', 'closed', 'all']:
         pag_off.exceptions.InvalidStatus(
@@ -70,7 +71,7 @@ def do_list(args, config):
         assignee = args.assignee
     tickets = pag_off.utils.load_tickets(
         ticket_fold, status=args.status, tags=tags,
-        assignee=assignee,
+        assignee=assignee, author=args.author,
     )
     table = []
     headers = None
@@ -205,6 +206,9 @@ def parse_arguments():
     parser_list.add_argument(
         '--assignee',
         help="Return only the ticket assigned to this person")
+    parser_list.add_argument(
+        '--author',
+        help="Return only the ticket opened to this person")
     parser_list.set_defaults(func=do_list)
 
     # VIEW

@@ -39,7 +39,7 @@ def _run_shell_cmd(command, directory, return_stdout=False):
 
 
 def load_tickets(ticket_fold, status='Open', ticket_id=None, tags=None,
-                 assignee=None):
+                 assignee=None, author=None):
     """ Load the tickets present in the specified folder, filter them with
     the given filters and return a dict of
         { ticket_id: ticket_data }
@@ -57,6 +57,8 @@ def load_tickets(ticket_fold, status='Open', ticket_id=None, tags=None,
     :type tags: list
     :kwarg assignee: The username of the assignee of the tickets to return
     :type assignee: str
+    :kwarg author: The username of the author of the tickets to return
+    :type author: str
     :return: The ticket data in a dict which key in the ticket identifier
     :rtype: dict
 
@@ -107,6 +109,10 @@ def load_tickets(ticket_fold, status='Open', ticket_id=None, tags=None,
             if not data['assignee']:
                 continue
             elif data['assignee']['name'] != assignee:
+                continue
+
+        if author is not None:
+            if data['user']['name'] != author:
                 continue
 
         tickets[_id] = data
