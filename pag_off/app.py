@@ -51,6 +51,7 @@ def do_list(args, config):
     _log.debug('tags:           %s', args.tag)
     _log.debug('sort:           %s', args.sort)
     _log.debug('mine:           %s', args.mine)
+    _log.debug('assignee:       %s', args.assignee)
     _log.debug('author:         %s', args.author)
 
     if args.status.lower() not in ['open', 'closed', 'all']:
