@@ -44,6 +44,19 @@ def do_clone(args, config):
     print(url)
 
 
+def do_update(args, config):
+    """ Runs git pull--rebased on the desired git repository. """
+    _log.debug('project:        %s', args.project)
+    location = os.path.expanduser(config.get('main', 'location'))
+    project_folder = os.path.join(location, args.project)
+    _log.debug('Running git pull --rebase on:        %s', project_folder)
+    pag_off.utils._run_shell_cmd(
+        ['git', 'pull', '--rebase'],
+        directory=project_folder
+    )
+    print('%s updated' % args.project)
+
+
 def do_list(args, config):
     """ List the tickets in the specified git repository. """
     _log.debug('project:        %s', args.project)
@@ -180,6 +193,17 @@ def parse_arguments():
         'repo',
         help="The type of repository to clone: tickets or pull-requests")
     parser_clone.set_defaults(func=do_clone)
+
+    # UPDATE
+    parser_update = subparsers.add_parser(
+        'update',
+        help='Update a specified repository')
+    parser_update.add_argument(
+        'project',
+        help="Name of the project on pagure, can be: <project>, "
+             "<namespace>/project, fork/<user>/<project> or "
+             "fork/<user>/<namespace>/<project>")
+    parser_update.set_defaults(func=do_update)
 
     # LIST
     parser_list = subparsers.add_parser(
