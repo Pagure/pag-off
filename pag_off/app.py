@@ -42,6 +42,7 @@ def do_clone(args, config):
     print(base_url)
     url = '{0}/{1}/{2}'.format(base_url, args.repo, args.project)
     print(url)
+    print('This has not yet been implemented')
 
 
 def do_update(args, config):
