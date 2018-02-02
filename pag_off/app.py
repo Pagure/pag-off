@@ -339,6 +339,10 @@ def main():
                     )
 
     if invalid_conf:
+        if not file_read:
+            print(
+                'Configuration files can be located in any of: %s' %
+                CONFIGS)
         return 3
 
     logging.basicConfig()
