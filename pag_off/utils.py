@@ -258,6 +258,57 @@ def add_comment(ticket, filepath, comment, config):
     return 'done'
 
 
+def take_ticke(ticket, filepath, config):
+    """ Assign a ticket to the current user. """
+    comment = "**Metadata Update from @%s**:\n"\
+        "- Issue assigned to %s" % (
+            config.get('user', 'name'),
+            config.get('user', 'name'),
+        )
+
+    tmpl = {
+        'comment': comment,
+        'date_created': datetime.datetime.utcnow().strftime('%s'),
+        'edited_on': None,
+        'editor': None,
+        'id': None,
+        'notification': True,
+        'parent': None,
+        'user': {
+            'name': config.get('user', 'name'),
+            'default_email': config.get('user', 'default_email'),
+        }
+    }
+    ticket['comments'].append(tmpl)
+
+    ticket['assignee'] = {
+        'name': config.get('user', 'name'),
+        'default_email': config.get('user', 'default_email'),
+    }
+
+    print(ticket2str(ticket))
+    conf = input(
+        'Confirm assigning this ticket to %s [y/N]: ' % (
+            config.get('user', 'name')))
+    if conf.lower() not in ['yes', 'y']:
+        return 'canceled'
+
+    with open(filepath, 'w') as stream:
+        stream.write(json.dumps(
+            ticket, sort_keys=True, indent=4,
+            separators=(',', ': '))
+        )
+    folder, uid = filepath.rsplit('/', 1)
+    _run_shell_cmd(
+        ['git', 'commit', '-m',
+         'Close issue %s: %s' % (uid, ticket['title']),
+         uid
+         ],
+        directory=folder
+    )
+    return 'done'
+
+
 def close_ticket(ticket, filepath, config, close_status=None):
     """ Close the specified ticket, potentially with the specified
     close_status.

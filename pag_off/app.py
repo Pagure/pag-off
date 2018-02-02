@@ -143,6 +143,20 @@ def do_comment(args, config):
     print(pag_off.utils.add_comment(ticket, filepath, comment, config))
 
 
+def do_take(args, config):
+    """ Allows the user to self-assign a specific ticket
+    """
+    _log.debug('project:        %s', args.project)
+    _log.debug('ticket:         %s', args.ticket_id)
+
+    location = os.path.expanduser(config.get('main', 'location'))
+    ticket_fold = os.path.join(location, args.project)
+    _log.debug('folder:         %s', ticket_fold)
+    ticket, filepath = pag_off.utils.load_tickets(
+        ticket_fold, ticket_id=args.ticket_id)
+    print(pag_off.utils.take_ticke(ticket, filepath, config))
+
+
 def do_close(args, config):
     """ Allows the user to comment on a specific ticket
     """
@@ -278,6 +292,20 @@ def parse_arguments():
         'ticket_id',
         help="Identifier of the ticket in this project")
     parser_comment.set_defaults(func=do_close)
+
+    # TAKE
+    parser_take = subparsers.add_parser(
+        'take',
+        help='Self-assign a ticket')
+    parser_take.add_argument(
+        'project',
+        help="Name of the project on pagure, can be: <project>, "
+             "<namespace>/project, fork/<user>/<project> or "
+             "fork/<user>/<namespace>/<project>")
+    parser_take.add_argument(
+        'ticket_id',
+        help="Identifier of the ticket in this project")
+    parser_take.set_defaults(func=do_take)
 
     return parser.parse_args()
 
