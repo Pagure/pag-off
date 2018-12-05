@@ -342,6 +342,12 @@ def close_ticket(ticket, filepath, config, close_status=None):
     }
     ticket['comments'].append(tmpl)
 
+    ticket['status'] = 'Closed'
+    ticket['closed_at'] = datetime.datetime.utcnow().strftime('%s')
+    ticket['last_updated'] = datetime.datetime.utcnow().strftime('%s')
+    if close_status:
+        ticket['close_status'] = close_status
+
     print(ticket2str(ticket))
     t = ' '
     if close_status:
@@ -349,12 +355,6 @@ def close_ticket(ticket, filepath, config, close_status=None):
     conf = input('Confirm closing this ticket%s[y/N]: ' % t)
     if conf.lower() not in ['yes', 'y']:
         return 'canceled'
-
-    ticket['status'] = 'Closed'
-    ticket['closed_at'] = datetime.datetime.utcnow().strftime('%s')
-    ticket['last_updated'] = datetime.datetime.utcnow().strftime('%s')
-    if close_status:
-        ticket['close_status'] = close_status
 
     with open(filepath, 'w') as stream:
         stream.write(json.dumps(
