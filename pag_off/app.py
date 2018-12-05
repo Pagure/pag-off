@@ -116,6 +116,39 @@ def do_list(args, config):
         print('%s tickets found' % cnt)
 
 
+def do_list_milestones(args, config):
+    """ List all the milestones in the specified git repository. """
+    _log.debug('project:        %s', args.project)
+
+    location = os.path.expanduser(config.get('main', 'location'))
+    ticket_fold = os.path.join(location, args.project)
+    _log.debug('folder:         %s', ticket_fold)
+    assignee = None
+    tickets = pag_off.utils.load_tickets(ticket_fold, status='all')
+    milestones = set(
+        tickets[ticket]['milestone']
+        for ticket in tickets
+        if tickets[ticket]['milestone']
+            and str(tickets[ticket]['milestone']) != 'None'
+    )
+
+    table = []
+    headers = None
+    cnt = 0
+    if milestones:
+        headers = ['Milestones']
+        for key in sorted(milestones):
+            table.append([
+                str(key),
+            ])
+            cnt += 1
+    else:
+        table.append(['No milestones found in this project'])
+    print(tabulate(table, headers=headers, disable_numparse=True))
+    if cnt:
+        print('%s milestones found' % cnt)
+
+
 def do_view(args, config):
     """ Displays the content the tickets in the specified git repository.
     """
@@ -311,6 +344,17 @@ def parse_arguments():
         'ticket_id',
         help="Identifier of the ticket in this project")
     parser_take.set_defaults(func=do_take)
+
+    # list-milestones
+    parser_take = subparsers.add_parser(
+        'list-milestones',
+        help='List all milestones available on the project')
+    parser_take.add_argument(
+        'project',
+        help="Name of the project on pagure, can be: <project>, "
+             "<namespace>/project, fork/<user>/<project> or "
+             "fork/<user>/<namespace>/<project>")
+    parser_take.set_defaults(func=do_list_milestones)
 
     return parser.parse_args()
 
